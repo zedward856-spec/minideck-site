@@ -122,7 +122,7 @@ const caseFrame = new THREE.Group(); deck.add(caseFrame);   // case mm frame (Z 
 caseFrame.rotation.x = -Math.PI / 2;
 
 const sdLamp = new THREE.PointLight(0xffffff, 0, 90, 1.5);    // lights the card in the storage section
-sdLamp.position.set(118, 4, 34); caseFrame.add(sdLamp);
+sdLamp.position.set(-26, 4, 34); caseFrame.add(sdLamp);
 const mats = {};
 function mat(role) {
   if (mats[role]) return mats[role];
@@ -359,8 +359,8 @@ function sceneTargets(t) {
       T.x = m ? 0 : 75; T.y = m ? 40 : 0; T.scale = 1.35; break;
     case "storage": {
       const k = ease(clamp((p - 0.1) / 0.7));
-      T.sd = 1 - k; T.spin = -1.0 - Math.sin(p * Math.PI) * 0.12; T.tilt = 0.22; T.lid = 105;
-      T.x = m ? -40 : -20; T.y = m ? 40 : 10; T.scale = m ? 3.2 : 2.3;
+      T.sd = 1 - k; T.spin = 1.0 + Math.sin(p * Math.PI) * 0.12; T.tilt = 0.22; T.lid = 105;
+      T.x = m ? 30 : 60; T.y = m ? 40 : 10; T.scale = m ? 3.2 : 2.3;
       $("#sdPct").textContent = k > 0.99 ? "click" : Math.round(k * 100) + "%";
       break;
     }
@@ -476,7 +476,7 @@ function frame(now) {
   // microSD: slides in through the right-wall slot
   if (S.sd > 0.002 && byName.sdcard) {
     const P = byName.sdcard;
-    P.pivot.position.copy(P.centre); P.pivot.position.x += 30 * S.sd; P.pivot.quaternion.identity();
+    P.pivot.position.copy(P.centre); P.pivot.position.x -= 40 * S.sd; P.pivot.quaternion.identity();   // out through the left-wall slot
   }
   if (byName.sdcard && byName.sdcard.tag) {
     const show = T.scene === "storage" && !mobile(), P = byName.sdcard;
