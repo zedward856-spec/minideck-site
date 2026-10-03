@@ -6,7 +6,7 @@ import { toCreasedNormals } from "three/addons/utils/BufferGeometryUtils.js";
 // ------------------------------------------------------------------ data
 const PALETTES = [
   { name: "Cyber yellow", body: "#2d2d2d", kbplate: "#3d3d3d", accent: "#f7d116", accent2: "#f7d116", keys: "#161616", glow: 0.0 },
-  { name: "Neon night", body: "#0d0d12", kbplate: "#22232c", accent: "#ff2a6d", accent2: "#05d9e8", keys: "#161618", glow: 0.6 },
+  { name: "Neon night", body: "#0d0d12", kbplate: "#22232c", accent: "#05d9e8", accent2: "#ff2a6d", keys: "#161618", glow: 0.6 },
   { name: "Arasaka", body: "#111214", kbplate: "#3b3d42", accent: "#e0102a", accent2: "#e0102a", keys: "#161618", glow: 0.2 },
   { name: "Snow", body: "#e7e6e1", kbplate: "#f6f6f3", accent: "#ff5a10", accent2: "#ff5a10", keys: "#f2f2f0", glow: 0.0 },
   { name: "Retro beige", body: "#d6c9a8", kbplate: "#bfb08c", accent: "#7a1f2b", accent2: "#7a1f2b", keys: "#8e9093", glow: 0.0 },
