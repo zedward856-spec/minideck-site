@@ -75,7 +75,7 @@ const pmrem = new THREE.PMREMGenerator(renderer);
 scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 scene.environmentIntensity = 0.55;
 
-const camera = new THREE.PerspectiveCamera(32, innerWidth / innerHeight, 1, 2000);
+const camera = new THREE.PerspectiveCamera(32, innerWidth / innerHeight, 20, 1500);   // tight near/far: phone depth buffers are coarse
 camera.position.set(0, 80, 430);
 
 const key = new THREE.DirectionalLight(0xffffff, 2.4); key.position.set(-120, 220, 160); scene.add(key);
@@ -131,6 +131,7 @@ function mat(role) {
     m = new THREE.MeshStandardMaterial({ color: "#2d2d2d", roughness: role === "keys" ? 0.85 : 0.62, metalness: 0.0 });
     if (role.startsWith("accent") || role === "fill") m.emissive = new THREE.Color(0);
   }
+  if (role === "fill" || role === "fill_dark") Object.assign(m, { polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
   m.userData.role = role;
   return (mats[role] = m);
 }
@@ -227,8 +228,9 @@ async function loadDeck() {
     tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 8;
     const [x0, y0, x1, y1] = L.rect;
     const pl = new THREE.Mesh(new THREE.PlaneGeometry(x1 - x0, y1 - y0),
-      new THREE.MeshStandardMaterial({ map: tex, transparent: true, alphaTest: 0.05, roughness: 0.85 }));
-    pl.position.set((x0 + x1) / 2, (y0 + y1) / 2, L.z + 0.03).sub(kc.centre);
+      new THREE.MeshStandardMaterial({ map: tex, alphaTest: 0.5, roughness: 0.85,
+        polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4 }));
+    pl.position.set((x0 + x1) / 2, (y0 + y1) / 2, L.z + 0.12).sub(kc.centre);
     kc.pivot.add(pl);
     legendPlane = pl;
   }
@@ -283,20 +285,34 @@ function countUp(el) {
 // ------------------------------------------------------------------ interaction
 // drag sideways to turn the deck (it stays where you leave it); double-click / double-tap to blow it apart.
 // Vertical swipes on a phone still scroll the page.
-let dragSpin = 0, dragTarget = 0, dragging = false, moved = false, lastX = 0, downX = 0, lastTap = 0;
+// spin physics: the deck follows your finger 1:1, keeps the speed you flick it with, and slows by
+// friction: Coulomb (constant, MU) + viscous (proportional to speed, VISC), like a turntable on a bearing
+const K_DRAG = 0.008, MU = 1.6, VISC = 0.9, OMEGA_MAX = 14;
+let dragSpin = 0, omega = 0, vel = 0, lastMoveT = 0, returning = false;
+let dragging = false, moved = false, lastX = 0, downX = 0, lastTap = 0;
 let pointer = { x: 0, y: 0 }, touchUser = false;
 addEventListener("pointermove", (e) => {
   if (e.pointerType === "mouse") { pointer.x = e.clientX / innerWidth - .5; pointer.y = e.clientY / innerHeight - .5; }
   if (!dragging) return;
   if (Math.abs(e.clientX - downX) > 6) moved = true;
-  if (moved) { dragTarget += (e.clientX - lastX) * 0.008; if (hold === null) hold = S.spin; }
+  if (moved) {
+    const now = performance.now(), d = (e.clientX - lastX) * K_DRAG, dtm = Math.max(1, now - lastMoveT) / 1000;
+    dragSpin += d;
+    vel = lerp(vel, d / dtm, 0.5);                 // smoothed finger speed (rad/s)
+    lastMoveT = now;
+    if (hold === null) hold = S.spin;
+  }
   lastX = e.clientX;
 });
 canvas.addEventListener("pointerdown", (e) => {
   dragging = true; moved = false; lastX = downX = e.clientX;
+  omega = 0; vel = 0; returning = false; lastMoveT = performance.now();   // grabbing it stops it
   touchUser = e.pointerType !== "mouse";
 });
 addEventListener("pointerup", () => {
+  if (dragging && moved) {                         // let go: it keeps the flick speed (none if you held still)
+    omega = performance.now() - lastMoveT < 90 ? clamp(vel, -OMEGA_MAX, OMEGA_MAX) : 0;
+  }
   if (dragging && !moved) {
     const now = performance.now();
     if (now - lastTap < 350) { burst(1); lastTap = 0; } else lastTap = now;
@@ -389,9 +405,22 @@ function frame(now) {
   const targetE = clamp(Math.max(T.explode, introE, burstE));
   S.explode = it < 2.6 ? targetE : damp(S.explode, targetE, burstE > 0 ? 10 : k, dt);
   S.lid = introLid !== null ? introLid : damp(S.lid, T.lid, 3.2, dt);
-  if (T.scene !== lastScene) { dragTarget = 0; hold = null; lastScene = T.scene; }   // a new section takes back its view
+  if (T.scene !== lastScene) {                     // a new section takes back its view
+    if (lastScene !== null && (dragSpin || omega)) {
+      returning = true; omega = 0; dragSpin = Math.atan2(Math.sin(dragSpin), Math.cos(dragSpin));
+    }
+    hold = null; lastScene = T.scene;
+  }
   if (hold !== null) T.spin = hold;
-  dragSpin = damp(dragSpin, dragTarget, 10, dt);
+  if (!dragging && omega) {
+    dragSpin += omega * dt;
+    const dec = (MU + VISC * Math.abs(omega)) * dt;
+    omega = Math.abs(omega) <= dec ? 0 : omega - Math.sign(omega) * dec;
+  }
+  if (returning && !dragging) {
+    dragSpin = damp(dragSpin, 0, 3, dt);
+    if (Math.abs(dragSpin) < 1e-3) { dragSpin = 0; returning = false; }
+  }
   // turn the short way round to the next section's angle (no unwinding whole turns)
   const dA = Math.atan2(Math.sin(T.spin - S.spin), Math.cos(T.spin - S.spin));
   S.spin += dA * (1 - Math.exp(-(it < 3 ? 1.8 : 2.4) * dt));
