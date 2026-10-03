@@ -32,6 +32,9 @@ const BOM = {
     ["Silicone wire + u.FL", "—"]],
 };
 
+// cache-buster for the data files (bumped on every deploy along with the ?v= in index.html)
+const ASSET_V = new URL(import.meta.url).searchParams.get("v") || "0";
+
 // ------------------------------------------------------------------ helpers
 const $ = (s) => document.querySelector(s);
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
@@ -171,8 +174,8 @@ function pivotize(obj, parent) {
 function rnd(seed) { let s = seed; return () => ((s = Math.sin(s * 9301 + 49297) * 233280) - Math.floor(s)); }
 
 async function loadDeck() {
-  meta = await (await fetch("assets/parts.json")).json();
-  const gltf = await new GLTFLoader().loadAsync("assets/minideck.glb", (e) => {
+  meta = await (await fetch("assets/parts.json?v=" + ASSET_V)).json();
+  const gltf = await new GLTFLoader().loadAsync("assets/minideck.glb?v=" + ASSET_V, (e) => {
     if (e.total) { const p = Math.round((e.loaded / e.total) * 100); $("#loadbar").style.width = p + "%"; $("#loadpct").textContent = p + "%"; }
   });
   const root = gltf.scene;
@@ -224,7 +227,7 @@ async function loadDeck() {
   // keycap legends: one textured plane over the keyboard
   const L = meta.legends, kc = byName["keycaps"] || byName[meta.keycaps.host];
   if (L && kc) {
-    const tex = await new THREE.TextureLoader().loadAsync("assets/legends.png");
+    const tex = await new THREE.TextureLoader().loadAsync("assets/legends.png?v=" + ASSET_V);
     tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 8;
     const [x0, y0, x1, y1] = L.rect;
     const pl = new THREE.Mesh(new THREE.PlaneGeometry(x1 - x0, y1 - y0),
