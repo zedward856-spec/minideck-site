@@ -18,7 +18,7 @@ const FIXED = {          // electronics: colour, roughness, metalness
   cell: ["#2f5fd0", 0.35, 0.2], flex: ["#d39a1c", 0.45, 0.1], dark: ["#1d1d1f", 0.45, 0.2],
   glass: ["#04060a", 0.08, 0.3], ceramic: ["#e6e6dc", 0.7, 0.0], sdcard: ["#0d0d0f", 0.28, 0.25],
 };
-const TAGGED = ["sdcard", "radxa", "18650", "lora", "pn532", "dac", "keyboard", "driver_board", "battery_door", "hinge_axle",
+const TAGGED = ["radxa", "18650", "lora", "pn532", "dac", "keyboard", "driver_board", "battery_door", "hinge_axle",
   "gps_module", "sdr_dongle", "mt3608", "tp4056", "screen_panel", "torque_hinge"];
 const BOM = {
   printed: [["Case bottom", "body"], ["Keyboard plate", "kbplate"], ["Lid shell", "body"], ["Screen bezel", "kbplate"],
@@ -27,7 +27,7 @@ const BOM = {
   elec: [["Radxa ZERO 3W", "computer"], ["EP28060S 2.8″ IPS", "display"], ["EHD-40P-V3", "HDMI driver"],
     ["M5Stack CardKB", "keyboard · I²C"], ["PN532", "NFC · I²C"], ["PCM5102", "I²S DAC"], ["Ebyte E22-900T22S", "LoRa · UART"],
     ["ATGM336H + patch", "GPS · UART"], ["NESDR Nano 2+", "SDR · USB pins"], ["3 × Molex FPC", "antennas"],
-    ["TP4056 USB-C", "charger"], ["MT3608", "5.1 V boost"], ["18650", "battery"], ["microSD", "OS · side slot"]],
+    ["TP4056 USB-C", "charger"], ["MT3608", "5.1 V boost"], ["18650", "battery"], ["microSD", "OS · under the plate"]],
   hw: [["M2 × 4 screws", "12"], ["M2 heat-set inserts", "8"], ["Friction torque hinge", "1"], ["Silicone keycaps", "1 set"],
     ["Silicone wire + u.FL", "—"]],
 };
@@ -121,8 +121,6 @@ const deck = new THREE.Group(); scene.add(deck);            // spins / moves
 const caseFrame = new THREE.Group(); deck.add(caseFrame);   // case mm frame (Z up) -> three (Y up)
 caseFrame.rotation.x = -Math.PI / 2;
 
-const sdLamp = new THREE.PointLight(0xffffff, 0, 90, 1.5);    // lights the card in the storage section
-sdLamp.position.set(-26, 4, 34); caseFrame.add(sdLamp);
 const mats = {};
 function mat(role) {
   if (mats[role]) return mats[role];
@@ -337,7 +335,7 @@ function sceneTargets(t) {
     const r = s.getBoundingClientRect();
     if (r.top <= vh * 0.5 && r.bottom > vh * 0.5) { active = s; p = clamp(-r.top / Math.max(1, r.height - vh)); break; }
   }
-  const T = { sd: 0, battery: 0, explode: 0, lid: 110, spin: Math.sin(t * 0.25) * 0.8, tilt: 0.32, x: m ? 0 : 55, y: m ? 28 : 8, z: 0, scale: 1, tags: 0, floor: 0 };
+  const T = { battery: 0, explode: 0, lid: 110, spin: Math.sin(t * 0.25) * 0.8, tilt: 0.32, x: m ? 0 : 55, y: m ? 28 : 8, z: 0, scale: 1, tags: 0, floor: 0 };
   switch (active.dataset.scene) {
     case "hero":
       T.x = m ? 0 : 115; T.y = m ? 66 : 30; T.spin = -0.6 + Math.sin(t * 0.25) * 0.9; break;
@@ -357,13 +355,6 @@ function sceneTargets(t) {
     case "power":
       T.battery = clamp(p / 0.9); T.lid = 0; T.spin = 1.05 + Math.sin(p * Math.PI) * 0.15; T.tilt = 0.28;
       T.x = m ? 0 : 75; T.y = m ? 40 : 0; T.scale = 1.35; break;
-    case "storage": {
-      const k = ease(clamp((p - 0.1) / 0.7));
-      T.sd = 1 - k; T.spin = 1.0 + Math.sin(p * Math.PI) * 0.12; T.tilt = 0.22; T.lid = 105;
-      T.x = m ? 30 : 60; T.y = m ? 40 : 10; T.scale = m ? 3.2 : 2.3;
-      $("#sdPct").textContent = k > 0.99 ? "click" : Math.round(k * 100) + "%";
-      break;
-    }
     case "specs":
       T.explode = 0.3; T.spin = 0.6 + Math.sin(t * 0.3) * 0.5; T.z = -200; T.y = m ? 120 : 96; T.x = m ? 0 : 175; T.scale = 0.9; break;
     case "palettes":
@@ -379,7 +370,7 @@ function sceneTargets(t) {
 }
 
 // ------------------------------------------------------------------ animate
-const S = { sd: 0, battery: 0, explode: 1, lid: 0, spin: -1.2, tilt: 0.32, x: 115, y: 30, z: 0, scale: 1 };   // starts blown apart: flies together
+const S = { battery: 0, explode: 1, lid: 0, spin: -1.2, tilt: 0.32, x: 115, y: 30, z: 0, scale: 1 };   // starts blown apart: flies together
 let t0 = null, last = performance.now(), introDone = false, palTimer = 0;
 const q = new THREE.Quaternion(), qI = new THREE.Quaternion(), v = new THREE.Vector3(), zAxis = new THREE.Vector3(0, 0, 1);
 
@@ -429,8 +420,6 @@ function frame(now) {
   S.spin += dA * (1 - Math.exp(-(it < 3 ? 1.8 : 2.4) * dt));
   for (const f of ["tilt", "x", "y", "z", "scale"]) S[f] = damp(S[f], T[f], 3, dt);
   S.battery = damp(S.battery, T.battery, 5, dt);
-  S.sd = damp(S.sd, T.sd, 6, dt);
-  sdLamp.intensity = damp(sdLamp.intensity, T.scene === "storage" ? 2600 : 0, 4, dt);
 
   deck.position.set(S.x, S.y, S.z);
   deck.rotation.set(S.tilt, S.spin + dragSpin, 0, "XYZ");
@@ -471,20 +460,6 @@ function frame(now) {
     C.pivot.position.copy(C.centre); C.pivot.position.x -= Bt.cell_out * cp; C.pivot.quaternion.identity();
     const st = b < 0.24 ? 0 : b < 0.58 ? 1 : 2;
     document.querySelectorAll("#steps li").forEach((li, k) => { li.classList.toggle("on", k === st); li.classList.toggle("done", k < st); });
-  }
-
-  // microSD: slides in through the right-wall slot
-  if (S.sd > 0.002 && byName.sdcard) {
-    const P = byName.sdcard;
-    P.pivot.position.copy(P.centre); P.pivot.position.x -= 40 * S.sd; P.pivot.quaternion.identity();   // out through the left-wall slot
-  }
-  if (byName.sdcard && byName.sdcard.tag) {
-    const show = T.scene === "storage" && !mobile(), P = byName.sdcard;
-    if (show) {
-      P.tag.style.opacity = 1;
-      P.pivot.getWorldPosition(v); v.project(camera);
-      P.tag.style.transform = `translate(${(v.x * .5 + .5) * innerWidth + 70}px, ${(-v.y * .5 + .5) * innerHeight - 46}px)`;
-    }
   }
 
   // palette: auto-cycles while the colours section is on screen, eases colours
