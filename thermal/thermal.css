@@ -1,0 +1,70 @@
+/* thermal lab: rides on the main site's style.css (same colours, fonts, nav, footer) */
+:root { --tpanel: rgba(18, 18, 22, .88); --good: #5ad19a; --bad: #ff6b6b; }
+
+/* the main page's floor grid, as a quiet background */
+body { background:
+  radial-gradient(ellipse at 50% 120%, rgba(247, 209, 22, .10), transparent 60%),
+  repeating-linear-gradient(0deg, rgba(247, 209, 22, .06) 0 1px, transparent 1px 40px),
+  repeating-linear-gradient(90deg, rgba(247, 209, 22, .06) 0 1px, transparent 1px 40px),
+  var(--bg); background-attachment: fixed; }
+#nav nav a.here { color: var(--y); box-shadow: inset 0 -1px 0 var(--y); }
+
+main.thermal { pointer-events: auto; max-width: 1240px; margin: 0 auto; padding: 96px clamp(16px, 4vw, 40px) 60px; }
+main.thermal * { pointer-events: auto; }
+.thermal h1 { font-size: clamp(34px, 5.5vw, 64px); text-transform: uppercase; line-height: .95; margin: 0 0 12px; }
+.thermal .intro p { max-width: 820px; color: #c9c9cf; }
+.thermal .dim { color: var(--dim); }
+.thermal .big { font-size: 20px; color: var(--y); }
+
+.thermal .controls { display: flex; flex-wrap: wrap; gap: 18px; margin: 22px 0 14px; align-items: end; }
+.thermal .ctl label { display: block; font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: .14em; margin-bottom: 6px; }
+.thermal .pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.thermal .pills button, .thermal select { background: var(--tpanel); color: var(--ink); border: 1px solid rgba(255,255,255,.14);
+  padding: 9px 13px; font: 13px var(--mono); cursor: pointer; transition: border-color .2s, color .2s; }
+.thermal .pills.small button { padding: 4px 8px; font-size: 11px; }
+.thermal .pills button:hover { border-color: rgba(247,209,22,.5); }
+.thermal .pills button.on { border-color: var(--y); color: var(--y); box-shadow: 0 0 14px rgba(247,209,22,.18); }
+.thermal select { min-width: 300px; }
+
+.thermal .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 14px; }
+.thermal .stat { background: var(--tpanel); border: 1px solid rgba(255,255,255,.07); padding: 12px 14px; backdrop-filter: blur(6px); }
+.thermal .stat b { display: block; font-size: 30px; line-height: 1.1; }
+.thermal .stat span { font: 11px var(--mono); color: var(--dim); text-transform: uppercase; letter-spacing: .08em; }
+.thermal .stat i { font-style: normal; font: 12px var(--mono); margin-left: 6px; }
+.thermal .stat i.good { color: var(--good); } .thermal .stat i.bad { color: var(--bad); }
+.thermal .stat.warn b { color: var(--bad); }
+
+.thermal .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.thermal .tpanel { background: var(--tpanel); border: 1px solid var(--line); padding: 16px; position: relative; margin-bottom: 14px;
+  backdrop-filter: blur(6px);
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px)); }
+.thermal .tpanel h2 { font-size: 15px; margin: 0; letter-spacing: .14em; text-transform: uppercase; font-family: var(--mono); color: var(--y); line-height: 1.2; }
+.thermal .panel-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 10px; flex-wrap: wrap; }
+.thermal #slice { width: 100%; display: block; background: #000; cursor: crosshair; }
+.thermal #view3d { width: 100%; aspect-ratio: 4 / 3; background: #050507; }
+.thermal .row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 8px; }
+.thermal .row input[type=range] { flex: 1; accent-color: var(--y); }
+.thermal .legend canvas { width: 100%; height: 14px; display: block; margin-top: 8px; }
+.thermal .tip { position: absolute; pointer-events: none !important; background: rgba(0,0,0,.88); border: 1px solid var(--y); padding: 4px 8px;
+  font-size: 12px; display: none; white-space: nowrap; z-index: 3; }
+
+.thermal #bars .bar { display: grid; grid-template-columns: 260px 1fr 1fr 1fr; gap: 10px; align-items: center; padding: 6px 4px;
+  cursor: pointer; border-bottom: 1px solid rgba(255,255,255,.05); font: 12px var(--mono); }
+.thermal #bars .bar:hover, .thermal #bars .bar.on { background: rgba(247,209,22,.07); }
+.thermal #bars .bar.on { outline: 1px solid var(--line); }
+.thermal #bars .hdr { cursor: default; color: var(--dim); text-transform: uppercase; letter-spacing: .1em; font-size: 10px; }
+.thermal #bars .hdr:hover { background: none; }
+.thermal .track { position: relative; height: 14px; background: rgba(255,255,255,.05); }
+.thermal .track i { position: absolute; left: 0; top: 0; bottom: 0; }
+.thermal .track em { position: absolute; right: 4px; top: 0; font-size: 11px; color: #fff; background: rgba(0,0,0,.65); padding: 0 4px; line-height: 14px; font-style: normal; }
+.thermal .notes ul { margin: 10px 0; padding-left: 18px; color: #c9c9cf; }
+.thermal .notes li { margin: 6px 0; }
+.thermal code { font-family: var(--mono); color: var(--y); font-size: 12px; }
+.thermal .back { margin: 6px 0 0; }
+
+@media (max-width: 900px) {
+  .thermal .grid2 { grid-template-columns: 1fr; }
+  .thermal #bars .bar { grid-template-columns: 1fr; gap: 4px; }
+  .thermal select { min-width: 0; width: 100%; }
+  #nav nav a.here { display: inline; }
+}

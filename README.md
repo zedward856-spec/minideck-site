@@ -7,7 +7,7 @@ Product page for the Minideck pocket cyberdeck. It's a static three.js site: the
 - `index.html`, `style.css`, `main.js`: the page (three.js from jsDelivr, no build step)
 - `assets/minideck.glb`, `assets/parts.json`: web meshes and part metadata, exported from the CAD project by `site_export.py`
 - `assets/screen.mp4`: the Optic loading animation on the screen
-- `thermal.html` + `thermal/`: the interactive thermal lab (exported by `thermal_export.py` in the project repo)
+- `thermal/` (`index.html`, `thermal.js`, `thermal.css`, `data/`): the interactive thermal lab (exported by `thermal_export.py` in the project repo)
 
 Run locally: `python3 -m http.server` and open http://localhost:8000.
 

@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Minideck thermal lab</title>
+<meta name="description" content="Interactive results of the Minideck's 3D thermal simulation: temperatures inside the deck for every load and cooling option.">
+<meta name="theme-color" content="#0a0a0c">
+<link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=20261004150627">
+<link rel="stylesheet" href="thermal.css?v=20261004150627">
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div class="scan"></div>
+<div class="grain"></div>
+<header id="nav">
+  <a href="../" class="brand">
+    <svg class="optic" viewBox="-8 -8 136 136" aria-hidden="true"><use href="#optic-sym"/></svg>
+    <svg class="wm-small" viewBox="0 0 5000 709" aria-label="MINIDECK"><use href="#wm"/></svg>
+  </a>
+  <nav class="mono">
+    <a href="../#apart">teardown</a><a href="../#hinge">hinge</a><a href="../#power">power</a><a href="../#specs">specs</a><a href="../#palettes">colours</a><a href="../#parts">parts</a><a href="./" class="here">thermal</a><a href="../#contact" class="hot">contact</a>
+  </nav>
+</header>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="wm" viewBox="36 -705 5000 709"><path d="M549 -629 504 -502 460 -629C425 -725 295 -725 260 -629L40 0H199L343 -412C348 -427 370 -431 377 -412L521 0H680L584 -274L632 -412C637 -427 659 -431 666 -412L810 0H969L749 -629C714 -725 584 -725 549 -629Z M1049 0H1199V-700H1049Z M1769 -315C1769 -286 1748 -287 1736 -302L1467 -650C1393 -745 1279 -693 1279 -595V0H1429V-385C1429 -414 1450 -413 1462 -398L1731 -50C1805 45 1919 -7 1919 -105V-700H1769Z M1999 0H2149V-700H1999Z M2669 -700H2229V-550H2644C2694 -550 2719 -525 2719 -475V-225C2719 -175 2694 -150 2644 -150H2379V-424H2229V0H2669C2803 0 2869 -66 2869 -200V-500C2869 -634 2803 -700 2669 -700Z M3124 -701C3007 -701 2949 -635 2949 -501V-1H3589V-151H3099V-476C3099 -526 3120 -551 3162 -551H3590V-701ZM3224 -276H3529V-426H3224Z M3871 -700C3737 -700 3671 -634 3671 -500V-200C3671 -66 3737 0 3871 0H4311V-150H3896C3846 -150 3821 -175 3821 -225V-475C3821 -525 3846 -550 3896 -550H4161V-470H4311V-700Z M4391 0H4541V-275H4737C4787 -275 4796 -247 4812 -200L4882 0H5032L4952 -225C4934 -276 4920 -318 4901 -350C4920 -382 4934 -424 4952 -475L5032 -700H4882L4812 -500C4796 -453 4787 -425 4737 -425H4541V-700H4391Z"/></symbol>
+  <symbol id="optic-sym" viewBox="-8 -8 136 136">
+    <path d="M7.5,57.5 L35,30 L85,30 L112.5,57.5 L102.5,57.5 L82.5,37.5 L37.5,37.5 L17.5,57.5 Z"/>
+    <path d="M17.5,62.5 L37.5,82.5 L82.5,82.5 L102.5,62.5 L112.5,62.5 L85,90 L35,90 L7.5,62.5 Z"/>
+    <path d="M40,57.5 L60,37.5 L80,57.5 L67.5,57.5 L60,50 L52.5,57.5 Z"/>
+    <path d="M52.5,62.5 L60,70 L67.5,62.5 L80,62.5 L60,82.5 L40,62.5 Z"/>
+  </symbol>
+</svg>
+
+<main class="thermal">
+  <section class="intro">
+    <p class="kicker mono">07 — thermal lab</p>
+    <h1>Where does the <em>heat</em> go?</h1>
+    <p>A steady-state simulation of the base with every part in place, on a 1&nbsp;mm grid. Heat comes from the Radxa's
+      RK3566 (and the rest of the board), the SDR, the boost converter, the charger and the cell; it conducts through
+      everything and leaves through the case's outside (natural convection + radiation). Pick a load and a cooling option,
+      slice through the deck, or show everything above a temperature in 3D.</p>
+    <p class="small mono">Estimates for comparing options, not lab measurements. Room 25&nbsp;°C, lid open, deck on a desk.
+      Sustained heavy load is shown un-throttled — the real SoC slows itself down around 85–95&nbsp;°C.</p>
+    <p class="back"><a class="btn ghost" href="../">← back to the deck</a></p>
+  </section>
+
+  <section class="controls">
+    <div class="ctl"><label class="mono">load</label><div id="loads" class="pills"></div></div>
+    <div class="ctl"><label class="mono">cooling</label><select id="option"></select></div>
+  </section>
+
+  <section class="stats" id="stats"></section>
+
+  <section class="grid2">
+    <div class="tpanel">
+      <div class="panel-head">
+        <h2>Slice</h2>
+        <div class="pills small" id="axes">
+          <button data-ax="2" class="on">top (z)</button><button data-ax="1">front (y)</button><button data-ax="0">side (x)</button>
+        </div>
+      </div>
+      <canvas id="slice"></canvas>
+      <div class="row mono small"><span id="slicelabel"></span><input id="pos" type="range" min="0" max="47" value="21"></div>
+      <div class="legend"><canvas id="legend" height="14"></canvas><div class="mono small row"><span id="lmin"></span><span id="lmax"></span></div></div>
+      <div id="tip" class="tip mono"></div>
+    </div>
+    <div class="tpanel">
+      <div class="panel-head">
+        <h2>3D: everything above</h2>
+        <span class="mono big" id="thrlabel"></span>
+      </div>
+      <div id="view3d"></div>
+      <div class="row mono small"><span>threshold</span><input id="thr" type="range" min="25" max="170" value="55" step="1"></div>
+      <p class="small mono dim">drag to orbit · scroll to zoom · the case is drawn as a ghost</p>
+    </div>
+  </section>
+
+  <section class="tpanel">
+    <div class="panel-head"><h2>Every option, this load</h2><span class="mono small dim">click a row to view it</span></div>
+    <div id="bars"></div>
+  </section>
+
+  <section class="tpanel notes">
+    <h2>What the simulation says</h2>
+    <ul>
+      <li><b>Vents barely help</b> (−2 to −5&nbsp;°C): the deck is only ~15&nbsp;mm tall inside, so warm air hardly rises out.</li>
+      <li><b>An aluminium pillar from the SoC to an aluminium plate in the floor</b> is the biggest win for the CPU (−15&nbsp;°C typical, −39&nbsp;°C heavy). There is ~15&nbsp;mm of free air under the SoC for it.</li>
+      <li><b>A micro blower</b> (15&nbsp;mm, 0.1–0.2&nbsp;L/s) cools the inside air, the battery and the SDR the most.</li>
+      <li><b>Free fixes:</b> PETG/ASA instead of PLA (softens 20–40&nbsp;°C later), keep the SDR off the hatch, power the SDR only when used, cap the CPU, don't charge during heavy use.</li>
+    </ul>
+    <p class="small mono">Source: <a href="https://github.com/zedward856-spec/minideck">minideck repo</a> → <code>thermal_sim.py</code>, <code>thermal_report.md</code>.</p>
+  </section>
+</main>
+
+<footer>
+  <div class="mono">© 2026 zedward · designed in build123d · rendered in three.js<br><span class="credits">Component models: Radxa ZERO 3W © Radxa (CC BY 4.0) · E22-900T22S © Ebyte · PN532 V4 © Elechouse · DSGP184B patch © Taoglas · M2 inserts © CNC Kitchen (CC BY 4.0) · other parts modelled by zedward</span></div>
+  <div class="mono"><a id="mail2" href="#">email</a> · <a href="#">back to top ↑</a></div>
+</footer>
+<script type="module" src="thermal.js?v=20261004150627"></script>
+</body>
+</html>

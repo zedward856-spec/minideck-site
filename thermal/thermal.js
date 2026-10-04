@@ -19,7 +19,7 @@ const cache = {};
 let load = "heavy", run = null, field = null, ax = 2, pos = 21, scaleMax = 100;
 
 async function getRun(r) {
-  if (!cache[r.file]) cache[r.file] = new Uint8Array(await (await fetch(`thermal/${r.file}?v=${V}`)).arrayBuffer());
+  if (!cache[r.file]) cache[r.file] = new Uint8Array(await (await fetch(`data/${r.file}?v=${V}`)).arrayBuffer());
   return cache[r.file];
 }
 const T = (i, j, k) => run.lo + field[(i * ny + j) * nz + k] * run.step;
@@ -173,7 +173,7 @@ const controls = new OrbitControls(camera, renderer.domElement); controls.enable
 scene.add(new THREE.HemisphereLight(0xffffff, 0x222222, 1.2));
 const caseFrame = new THREE.Group(); caseFrame.rotation.x = -Math.PI / 2; caseFrame.position.set(-47, -13, 40); scene.add(caseFrame);
 let points = null;
-new GLTFLoader().load(`assets/minideck.glb?v=${V}`, (g) => {
+new GLTFLoader().load(`../assets/minideck.glb?v=${V}`, (g) => {
   const lid = g.scene.getObjectByName("lid"); if (lid) lid.visible = false;
   g.scene.updateMatrixWorld(true);
   const tri = [], v3 = new THREE.Vector3();
@@ -212,11 +212,15 @@ function resize() { const w = box.clientWidth; renderer.setSize(w, w * 0.75); ca
 addEventListener("resize", resize);
 (function loop() { requestAnimationFrame(loop); controls.update(); renderer.render(scene, camera); })();
 
+// footer email, assembled at runtime so scrapers don't get it for free
+const MAIL = ["zedward856", "gmail.com"].join("@");
+const m2 = document.getElementById("mail2"); if (m2) m2.href = "mailto:" + MAIL + "?subject=" + encodeURIComponent("Minideck");
+
 // ---------------------------------------------------------------- start
 (async () => {
-  IDX = await (await fetch(`thermal/index.json?v=${V}`)).json();
+  IDX = await (await fetch(`data/index.json?v=${V}`)).json();
   [nx, ny, nz] = IDX.n; lo = IDX.lo;
-  PARTS = new Uint8Array(await (await fetch(`thermal/parts.bin?v=${V}`)).arrayBuffer());
+  PARTS = new Uint8Array(await (await fetch(`data/parts.bin?v=${V}`)).arrayBuffer());
   $("#pos").max = nz - 1; pos = Math.round(17.5 - lo[2]); $("#pos").value = pos;
   resize(); buildLoads(); buildOptions();
 })();
