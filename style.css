@@ -85,7 +85,7 @@ em { font-style: normal; color: var(--y); }
 .brand { display: flex; align-items: center; gap: 10px; color: var(--ink); font-weight: 700; letter-spacing: .2em; font-size: 14px; }
 .brand .optic { width: 26px; height: 26px; }
 #nav nav { display: flex; gap: clamp(10px, 2vw, 26px); font-size: 12px; }
-#nav nav a { color: var(--dim); text-transform: uppercase; letter-spacing: .1em; transition: color .2s; }
+#nav nav a { color: #fff; text-transform: uppercase; letter-spacing: .1em; transition: color .2s; }
 #nav nav a:hover, #nav nav a.hot { color: var(--y); }
 
 /* ---------- sections ---------- */
