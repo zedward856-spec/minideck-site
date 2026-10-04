@@ -414,7 +414,7 @@ async function startXR() {
   const session = await navigator.xr.requestSession("immersive-ar",
     { requiredFeatures: ["hit-test"], optionalFeatures: ["dom-overlay"], domOverlay: { root: arUI } });
   renderer.xr.setReferenceSpaceType("local");
-  const saved = { pos: camera.position.clone(), quat: camera.quaternion.clone(), target: controls.target.clone() };   // XR moves our camera
+  const saved = { fov: camera.fov, pos: camera.position.clone(), quat: camera.quaternion.clone(), target: controls.target.clone() };   // XR moves our camera
   await renderer.xr.setSession(session);
   hitSrc = await session.requestHitTestSource({ space: await session.requestReferenceSpace("viewer") });
   deckToAR(); arGroup.visible = false; arPlaced = false; arGroup.rotation.set(0, 0, 0);
@@ -434,7 +434,7 @@ async function startXR() {
     hitSrc = null; reticle.visible = false; arUI.hidden = true; document.body.classList.remove("in-ar");
     deckBack(); grid.visible = true;
     renderer.setSize(innerWidth, innerHeight); viewOffset();
-    camera.position.copy(saved.pos); camera.quaternion.copy(saved.quat); controls.target.copy(saved.target); controls.update();
+    camera.fov = saved.fov; viewOffset(); camera.position.copy(saved.pos); camera.quaternion.copy(saved.quat); controls.target.copy(saved.target); controls.update();
   });
 }
 function arFrame(xrFrame) {
