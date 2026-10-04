@@ -434,6 +434,7 @@ async function startXR() {
     hitSrc = null; reticle.visible = false; arUI.hidden = true; document.body.classList.remove("in-ar");
     deckBack(); grid.visible = true;
     renderer.setSize(innerWidth, innerHeight); viewOffset();
+    screenMesh?.userData.base.map?.image?.play?.().catch(() => {});   // the screen clip pauses while AR runs
     camera.fov = saved.fov; viewOffset(); camera.position.copy(saved.pos); camera.quaternion.copy(saved.quat); controls.target.copy(saved.target); controls.update();
   });
 }
