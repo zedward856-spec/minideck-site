@@ -4,6 +4,7 @@ set -e
 cd "$(dirname "$0")"
 V=$(date +%Y%m%d%H%M%S)
 sed -i -E "s/(main\.js|style\.css)(\?v=[0-9]+)?\"/\1?v=$V\"/g" index.html
+sed -i -E "s/(thermal\.js|thermal\.css)(\?v=[0-9]+)?\"/\1?v=$V\"/g" thermal.html
 git add -A
 git commit -q -m "${1:-Update site} (v$V)
 
