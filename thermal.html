@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Minideck thermal lab</title>
+<meta name="description" content="Interactive results of the Minideck's 3D thermal simulation: temperatures inside the deck for every load and cooling option.">
+<meta name="theme-color" content="#0a0a0c">
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="thermal.css?v=1">
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<header class="top">
+  <a href="./" class="brand">← MINIDECK</a>
+  <span class="mono dim">thermal lab</span>
+</header>
+
+<main>
+  <section class="intro">
+    <p class="kicker mono">// 3D thermal simulation</p>
+    <h1>Where does the <em>heat</em> go?</h1>
+    <p>A steady-state simulation of the base with every part in place, on a 1&nbsp;mm grid. Heat comes from the Radxa's
+      RK3566 (and the rest of the board), the SDR, the boost converter, the charger and the cell; it conducts through
+      everything and leaves through the case's outside (natural convection + radiation). Pick a load and a cooling option,
+      slice through the deck, or show everything above a temperature in 3D.</p>
+    <p class="small mono">Estimates for comparing options, not lab measurements. Room 25&nbsp;°C, lid open, deck on a desk.
+      Sustained heavy load is shown un-throttled — the real SoC slows itself down around 85–95&nbsp;°C.</p>
+  </section>
+
+  <section class="controls">
+    <div class="ctl"><label class="mono">load</label><div id="loads" class="pills"></div></div>
+    <div class="ctl"><label class="mono">cooling</label><select id="option"></select></div>
+  </section>
+
+  <section class="stats" id="stats"></section>
+
+  <section class="grid2">
+    <div class="panel">
+      <div class="panel-head">
+        <h2>Slice</h2>
+        <div class="pills small" id="axes">
+          <button data-ax="2" class="on">top (z)</button><button data-ax="1">front (y)</button><button data-ax="0">side (x)</button>
+        </div>
+      </div>
+      <canvas id="slice"></canvas>
+      <div class="row mono small"><span id="slicelabel"></span><input id="pos" type="range" min="0" max="47" value="21"></div>
+      <div class="legend"><canvas id="legend" height="14"></canvas><div class="mono small row"><span id="lmin"></span><span id="lmax"></span></div></div>
+      <div id="tip" class="tip mono"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head">
+        <h2>3D: everything above</h2>
+        <span class="mono big" id="thrlabel"></span>
+      </div>
+      <div id="view3d"></div>
+      <div class="row mono small"><span>threshold</span><input id="thr" type="range" min="25" max="170" value="55" step="1"></div>
+      <p class="small mono dim">drag to orbit · scroll to zoom · the case is drawn as a ghost</p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><h2>Every option, this load</h2><span class="mono small dim">click a row to view it</span></div>
+    <div id="bars"></div>
+  </section>
+
+  <section class="panel notes">
+    <h2>What the simulation says</h2>
+    <ul>
+      <li><b>Vents barely help</b> (−2 to −5&nbsp;°C): the deck is only ~15&nbsp;mm tall inside, so warm air hardly rises out.</li>
+      <li><b>An aluminium pillar from the SoC to an aluminium plate in the floor</b> is the biggest win for the CPU (−15&nbsp;°C typical, −39&nbsp;°C heavy). There is ~15&nbsp;mm of free air under the SoC for it.</li>
+      <li><b>A micro blower</b> (15&nbsp;mm, 0.1–0.2&nbsp;L/s) cools the inside air, the battery and the SDR the most.</li>
+      <li><b>Free fixes:</b> PETG/ASA instead of PLA (softens 20–40&nbsp;°C later), keep the SDR off the hatch, power the SDR only when used, cap the CPU, don't charge during heavy use.</li>
+    </ul>
+    <p class="small mono">Source: <a href="https://github.com/zedward856-spec/minideck">minideck repo</a> → <code>thermal_sim.py</code>, <code>thermal_report.md</code>.</p>
+  </section>
+</main>
+<script type="module" src="thermal.js?v=1"></script>
+</body>
+</html>
