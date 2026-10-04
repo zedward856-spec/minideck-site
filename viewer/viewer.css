@@ -80,3 +80,11 @@ body.loading #side, body.loading #sideBtn { display: none; }
   #pick { bottom: 76px; }
   .hint { display: none; }
 }
+
+/* dark scrollbar for the parts list */
+.ps-list { scrollbar-width: thin; scrollbar-color: rgba(247,209,22,.35) rgba(255,255,255,.03); }
+.ps-list::-webkit-scrollbar { width: 6px; }
+.ps-list::-webkit-scrollbar-track { background: rgba(255,255,255,.03); }
+.ps-list::-webkit-scrollbar-thumb { background: rgba(247,209,22,.3); }
+.ps-list::-webkit-scrollbar-thumb:hover { background: rgba(247,209,22,.6); }
+.ps-list::-webkit-scrollbar-button { display: none; height: 0; }
