@@ -337,8 +337,8 @@ function sceneTargets(t) {
   }
   const T = { battery: 0, explode: 0, lid: 110, spin: Math.sin(t * 0.25) * 0.8, tilt: 0.32, x: m ? 0 : 55, y: m ? 28 : 8, z: 0, scale: 1, tags: 0, floor: 0 };
   switch (active.dataset.scene) {
-    case "hero":
-      T.x = m ? 0 : 115; T.y = m ? 66 : 30; T.spin = -0.6 + Math.sin(t * 0.25) * 0.9; break;
+    case "hero":                                 // desktop: centred in the right half of the screen, whatever its shape
+      T.x = m ? 0 : heroX(); T.y = m ? 66 : 10; T.spin = -0.6 + Math.sin(t * 0.25) * 0.9; break;
     case "apart": {
       const e = p < 0.38 ? ease(p / 0.38) : p < 0.66 ? 1 : 1 - ease((p - 0.66) / 0.34);
       T.explode = e; T.spin = -0.5 + p * Math.PI * 0.9; T.tilt = 0.32 + Math.sin(p * Math.PI) * 0.25;
@@ -370,7 +370,12 @@ function sceneTargets(t) {
 }
 
 // ------------------------------------------------------------------ animate
-const S = { battery: 0, explode: 1, lid: 0, spin: -1.2, tilt: 0.32, x: 115, y: 30, z: 0, scale: 1 };   // starts blown apart: flies together
+// x where the deck lands in the middle of the right half of the screen (the camera looks at (0, 10, 0))
+function heroX() {
+  const d = Math.hypot(camera.position.y - 10, camera.position.z);
+  return 0.5 * d * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect;
+}
+const S = { battery: 0, explode: 1, lid: 0, spin: -1.2, tilt: 0.32, x: heroX(), y: 10, z: 0, scale: 1 };   // starts blown apart: flies together
 let t0 = null, last = performance.now(), introDone = false, palTimer = 0;
 const q = new THREE.Quaternion(), qI = new THREE.Quaternion(), v = new THREE.Vector3(), zAxis = new THREE.Vector3(0, 0, 1);
 
@@ -494,6 +499,7 @@ loadDeck().then(() => minShow).then(() => {
   clearInterval(bootTimer);
   $("#loadbar").style.width = "100%"; $("#loadpct").textContent = "100%";
   t0 = null;                                       // restart the intro clock as the curtain opens
+  if (!mobile()) { S.x = heroX(); S.y = 10; }       // start exactly where the hero puts it
   $("#loader").classList.add("done");
   document.body.classList.remove("loading");
   setTimeout(() => document.querySelectorAll(".hero .reveal").forEach((el) => el.classList.add("in")), 500);
