@@ -27,7 +27,7 @@ const BOM = {
   elec: [["Radxa ZERO 3W", "computer"], ["EP28060S 2.8″ IPS", "display"], ["EHD-40P-V3", "HDMI driver"],
     ["M5Stack CardKB", "keyboard · I²C"], ["PN532", "NFC · I²C"], ["PCM5102", "I²S DAC"], ["Ebyte E22-900T22S", "LoRa · UART"],
     ["ATGM336H + patch", "GPS · UART"], ["NESDR Nano 2+", "SDR · USB pins"], ["3 × Molex FPC", "antennas"],
-    ["TP4056 USB-C", "charger"], ["MT3608", "5.1 V boost"], ["SS12D00 slide switch", "power on/off"], ["18650", "battery"], ["microSD", "OS · under the plate"]],
+    ["TP4056 USB-C", "charger"], ["Pololu U3V40F5", "5 V boost · 2.6 A"], ["SS12D00 slide switch", "power on/off"], ["Protected 18650", "battery · high-drain"], ["microSD", "OS · under the plate"]],
   hw: [["M2 × 4 screws", "12"], ["M2 heat-set inserts", "8"], ["Friction torque hinge", "1"], ["Silicone keycaps", "1 set"],
     ["Silicone wire + u.FL", "—"]],
 };
