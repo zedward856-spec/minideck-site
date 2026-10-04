@@ -37,7 +37,7 @@ select { min-width: 300px; }
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .panel { background: var(--panel); border: 1px solid rgba(255,255,255,.07); padding: 14px; position: relative; margin-bottom: 14px; }
 .panel-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 10px; flex-wrap: wrap; }
-#slice { width: 100%; image-rendering: pixelated; display: block; background: #000; cursor: crosshair; }
+#slice { width: 100%; display: block; background: #000; cursor: crosshair; }
 #view3d { width: 100%; aspect-ratio: 4 / 3; background: #050507; }
 .row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 8px; }
 .row input[type=range] { flex: 1; accent-color: var(--y); }
