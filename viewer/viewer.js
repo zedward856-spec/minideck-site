@@ -414,12 +414,18 @@ async function startXR() {
   const session = await navigator.xr.requestSession("immersive-ar",
     { requiredFeatures: ["hit-test"], optionalFeatures: ["dom-overlay"], domOverlay: { root: arUI } });
   renderer.xr.setReferenceSpaceType("local");
+  // XR takes its clip planes from our camera: the orbit view's (in mm, near ≈ 15) would clip
+  // everything closer than 15 m in AR, so the deck and the ring never showed
+  camera.near = 0.01; camera.far = 50;
   const saved = { fov: camera.fov, pos: camera.position.clone(), quat: camera.quaternion.clone(), target: controls.target.clone() };   // XR moves our camera
   await renderer.xr.setSession(session);
   hitSrc = await session.requestHitTestSource({ space: await session.requestReferenceSpace("viewer") });
   deckToAR(); arGroup.visible = false; arPlaced = false; arGroup.rotation.set(0, 0, 0);
   grid.visible = false; arUI.hidden = false; document.body.classList.add("in-ar");
   $("#arMsg").textContent = "move your phone slowly to find the desk…";
+  if (location.search.includes("ardebug")) {          // test hook: drop the deck 35 cm ahead without a surface
+    arGroup.position.set(0, -0.15, -0.35); arGroup.rotation.y = 0.5; arGroup.visible = arPlaced = true;
+  }
   session.addEventListener("select", () => {
     if (arMoved || !reticle.visible) return;           // a drag to turn isn't a tap to place
     arGroup.position.setFromMatrixPosition(reticle.matrix);
