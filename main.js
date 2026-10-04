@@ -370,10 +370,10 @@ function sceneTargets(t) {
 }
 
 // ------------------------------------------------------------------ animate
-// x where the deck lands in the middle of the right half of the screen (the camera looks at (0, 10, 0))
+// x where the deck lands at 65% of the screen width (a bit left of the right half's middle) (the camera looks at (0, 10, 0))
 function heroX() {
   const d = Math.hypot(camera.position.y - 10, camera.position.z);
-  return 0.5 * d * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect;
+  return 0.3 * d * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect;
 }
 const S = { battery: 0, explode: 1, lid: 0, spin: -1.2, tilt: 0.32, x: heroX(), y: 10, z: 0, scale: 1 };   // starts blown apart: flies together
 let t0 = null, last = performance.now(), introDone = false, palTimer = 0;
