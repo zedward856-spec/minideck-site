@@ -19,15 +19,15 @@ const FIXED = {          // electronics: colour, roughness, metalness
   glass: ["#04060a", 0.08, 0.3], ceramic: ["#e6e6dc", 0.7, 0.0], sdcard: ["#0d0d0f", 0.28, 0.25],
 };
 const TAGGED = ["radxa", "18650", "lora", "pn532", "dac", "keyboard", "driver_board", "battery_door", "hinge_axle",
-  "gps_module", "sdr_dongle", "mt3608", "tp4056", "screen_panel", "torque_hinge"];
+  "gps_module", "sdr_dongle", "mt3608", "tp4056", "screen_panel", "torque_hinge", "power_switch", "switch_knob"];
 const BOM = {
   printed: [["Case bottom", "body"], ["Keyboard plate", "kbplate"], ["Lid shell", "body"], ["Screen bezel", "kbplate"],
     ["Hinge-box hatch", "body"], ["Battery door", "accent"], ["C-clip lock", "accent2"], ["Torque hinge cap", "accent2"],
-    ["Hollow hinge axle", "accent2"]],
+    ["Hollow hinge axle", "accent2"], ["Power switch knob", "accent2"]],
   elec: [["Radxa ZERO 3W", "computer"], ["EP28060S 2.8″ IPS", "display"], ["EHD-40P-V3", "HDMI driver"],
     ["M5Stack CardKB", "keyboard · I²C"], ["PN532", "NFC · I²C"], ["PCM5102", "I²S DAC"], ["Ebyte E22-900T22S", "LoRa · UART"],
     ["ATGM336H + patch", "GPS · UART"], ["NESDR Nano 2+", "SDR · USB pins"], ["3 × Molex FPC", "antennas"],
-    ["TP4056 USB-C", "charger"], ["MT3608", "5.1 V boost"], ["18650", "battery"], ["microSD", "OS · under the plate"]],
+    ["TP4056 USB-C", "charger"], ["MT3608", "5.1 V boost"], ["SS12D00 slide switch", "power on/off"], ["18650", "battery"], ["microSD", "OS · under the plate"]],
   hw: [["M2 × 4 screws", "12"], ["M2 heat-set inserts", "8"], ["Friction torque hinge", "1"], ["Silicone keycaps", "1 set"],
     ["Silicone wire + u.FL", "—"]],
 };
