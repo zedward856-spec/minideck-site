@@ -33,6 +33,7 @@ const BOM = {
 };
 
 // cache-buster for the data files (bumped on every deploy along with the ?v= in index.html)
+const GLB_BYTES = +(document.querySelector('meta[name="glb-bytes"]')?.content || 0);   // real size: Pages gzips the GLB
 const ASSET_V = new URL(import.meta.url).searchParams.get("v") || "0";
 
 // ------------------------------------------------------------------ helpers
@@ -174,7 +175,7 @@ function rnd(seed) { let s = seed; return () => ((s = Math.sin(s * 9301 + 49297)
 async function loadDeck() {
   meta = await (await fetch("assets/parts.json?v=" + ASSET_V)).json();
   const gltf = await new GLTFLoader().loadAsync("assets/minideck.glb?v=" + ASSET_V, (e) => {
-    if (e.total) { const p = Math.round((e.loaded / e.total) * 100); $("#loadbar").style.width = p + "%"; $("#loadpct").textContent = p + "%"; }
+    { const p = Math.min(99, Math.round((e.loaded / (GLB_BYTES || e.total || Infinity)) * 100)); $("#loadbar").style.width = p + "%"; $("#loadpct").textContent = p + "%"; }
   });
   const root = gltf.scene;
   caseFrame.add(root);

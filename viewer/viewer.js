@@ -9,6 +9,10 @@ const $ = (s) => document.querySelector(s);
 const ASSET_V = new URL(import.meta.url).searchParams.get("v") || "0";
 const A = (f) => `../assets/${f}?v=${ASSET_V}`;
 const mobile = () => innerWidth < 860;
+// GitHub Pages gzips the GLB: e.total is the compressed size while e.loaded counts unpacked bytes,
+// so use the real size (written into the page by deploy.sh) and never show more than 99% until it's parsed
+const GLB_BYTES = +(document.querySelector('meta[name="glb-bytes"]')?.content || 0);
+const loadPct = (e) => Math.min(99, Math.round((e.loaded / (GLB_BYTES || e.total || Infinity)) * 100));
 
 // same palettes / electronics colours as the main page
 const PALETTES = [
@@ -184,7 +188,7 @@ let items = [], selected = null, root = null;
 async function load() {
   const meta = await (await fetch(A("parts.json"))).json();
   const gltf = await new GLTFLoader().loadAsync(A("minideck.glb"), (e) => {
-    if (e.total) $("#loadpct").textContent = Math.round((e.loaded / e.total) * 100) + "%";
+    $("#loadpct").textContent = loadPct(e) + "%";
   });
   root = gltf.scene; caseFrame.add(root);
   lidNode = root.getObjectByName("lid");
@@ -394,5 +398,19 @@ function frame() {
 }
 addEventListener("resize", () => { renderer.setSize(innerWidth, innerHeight); viewOffset(); });
 
-load().then(() => { document.body.classList.remove("loading"); requestAnimationFrame(frame); })
+// the loader plays the deck-screen animation and always finishes its 4 s loop before the deck shows
+const optic = $("#optic");
+let loaded = false;
+const untilLoopEnd = () => new Promise((r) => {
+  loaded = true; $("#loadpct").textContent = "100%";
+  if (optic.ended || optic.error || optic.paused) return r();
+  optic.addEventListener("ended", r, { once: true });
+  setTimeout(r, 4500);                             // never hang on the loader if the video stalls
+});
+optic.addEventListener("ended", () => { if (!loaded) { optic.currentTime = 0; optic.play(); } });
+optic.play().catch(() => {});
+load().then(untilLoopEnd).then(() => {
+  document.body.classList.remove("loading"); requestAnimationFrame(frame);
+  setTimeout(() => optic.pause(), 800);
+})
   .catch((e) => { console.error(e); $("#loadpct").textContent = "load error"; });

@@ -6,6 +6,8 @@ V=$(date +%Y%m%d%H%M%S)
 sed -i -E "s/(main\.js|style\.css)(\?v=[0-9]+)?\"/\1?v=$V\"/g" index.html
 sed -i -E "s/(thermal\.js|thermal\.css|style\.css)(\?v=[0-9]+)?\"/\1?v=$V\"/g" thermal/index.html
 sed -i -E "s/(viewer\.js|viewer\.css|style\.css)(\?v=[0-9]+)?\"/\1?v=$V\"/g" viewer/index.html
+B=$(stat -c %s assets/minideck.glb)              # real GLB size for the loading % (Pages serves it gzipped)
+sed -i -E "s/(name=\"glb-bytes\" content=\")[0-9]+/\1$B/" index.html viewer/index.html
 git add -A
 git commit -q -m "${1:-Update site} (v$V)
 
