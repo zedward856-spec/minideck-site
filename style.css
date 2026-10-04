@@ -215,7 +215,7 @@ footer { position: relative; z-index: 4; display: flex; justify-content: space-b
 .grid .reveal:nth-child(3n) { transition-delay: .16s; }
 
 @media (max-width: 860px) {
-  #nav nav a:not(.hot) { display: none; }
+  #nav nav a:not(.hot):not([href$="viewer/"]):not(.here) { display: none; }
   .bom { grid-template-columns: 1fr; }
   .panel.left, .panel.right { margin: auto auto 6vh; max-width: none; }
   .sticky { align-items: flex-end; }
