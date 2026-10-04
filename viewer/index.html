@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css?v=20261004154204">
-<link rel="stylesheet" href="viewer.css?v=20261004154204">
+<link rel="stylesheet" href="../style.css?v=20261004154747">
+<link rel="stylesheet" href="viewer.css?v=20261004154747">
 <script type="importmap">
 { "imports": {
   "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
@@ -60,6 +60,7 @@
     <label><span>lid</span><input id="lid" type="range" min="0" max="180" step="1" value="110"><b id="lidOut">110°</b></label>
     <label><span>explode</span><input id="explode" type="range" min="0" max="100" step="1" value="0"><b id="explodeOut">0%</b></label>
     <div class="toggles"><button id="xray">x-ray case</button><button id="spin">auto-spin</button><button id="resetBtn">reset view</button></div>
+    <button id="arBtn" class="arbtn">view in AR · real size</button>
   </div>
   <div class="sec parts">
     <div class="ps-head"><p class="kicker">// visible parts <b id="partsCount"></b></p></div>
@@ -69,7 +70,17 @@
   <p class="hint dim">drag to orbit · scroll / pinch to zoom · right-drag / two fingers to pan · click a part</p>
 </aside>
 <button id="sideBtn" class="mono">controls</button>
+<button id="arBtnM" class="mono">AR</button>
 
-<script type="module" src="viewer.js?v=20261004154204"></script>
+<div id="arUI" class="mono" hidden>
+  <div class="ar-top"><span id="arMsg"></span><button id="arExit" aria-label="Exit AR">exit</button></div>
+  <div class="ar-bar"><span>lid</span><input id="arLid" type="range" min="0" max="180" value="110"><b id="arLidOut">110°</b></div>
+</div>
+<div id="arModal" class="mono" hidden>
+  <div class="box"><p class="kicker">// view in AR</p><p id="arNote"></p><div id="arQR"></div><button id="arClose">close</button></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js" defer></script>
+
+<script type="module" src="viewer.js?v=20261004154747"></script>
 </body>
 </html>

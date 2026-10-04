@@ -4,6 +4,7 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { toCreasedNormals } from "three/addons/utils/BufferGeometryUtils.js";
+import { USDZExporter } from "three/addons/exporters/USDZExporter.js";
 
 const $ = (s) => document.querySelector(s);
 const ASSET_V = new URL(import.meta.url).searchParams.get("v") || "0";
@@ -53,7 +54,8 @@ const INFO = {
 
 // ------------------------------------------------------------------ renderer / scene
 const canvas = $("#stage");
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: "high-performance" });
+renderer.xr.enabled = true;
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.setSize(innerWidth, innerHeight);
 renderer.toneMapping = THREE.NeutralToneMapping;
@@ -184,7 +186,7 @@ function resetView() { controls.target.copy(home.target); camera.position.copy(h
 $("#resetBtn").onclick = () => home && resetView();
 
 // ------------------------------------------------------------------ load
-let items = [], selected = null, root = null;
+let items = [], selected = null, root = null, screenMesh = null;
 async function load() {
   const meta = await (await fetch(A("parts.json"))).json();
   const gltf = await new GLTFLoader().loadAsync(A("minideck.glb"), (e) => {
@@ -245,7 +247,7 @@ async function load() {
   const scr = new THREE.Mesh(new THREE.PlaneGeometry(S.w, S.h), new THREE.MeshBasicMaterial({ map: vt, toneMapped: false }));
   scr.rotation.x = Math.PI; scr.position.set(S.cx, S.cy, S.z - 0.05);
   lidNode.add(scr); const sp = holder("screen_panel"); if (sp) sp.attach(scr);
-  scr.userData.base = scr.material;
+  scr.userData.base = scr.material; screenMesh = scr;
 
   // ---- the parts list: one row per listed part, loose screws as two rows
   for (const n of Object.keys(meta)) {
@@ -271,7 +273,7 @@ async function load() {
   setPalette(palIndex);
   setLid(110);
   viewOffset(); frameDeck(root); resetView();
-  window.__viewer = { scene, camera, controls, items, root };
+  window.__viewer = { scene, camera, controls, items, root, usdz: () => buildUSDZ().then((d) => d.byteLength) };
 }
 
 // ------------------------------------------------------------------ parts list UI
@@ -387,9 +389,118 @@ function hover() {
 // mobile: the controls live in a bottom sheet
 $("#sideBtn").onclick = () => { const o = $("#side").classList.toggle("open"); $("#sideBtn").classList.toggle("on", o); };
 
+// ------------------------------------------------------------------ AR: the deck at real size on your desk
+// Android (Chrome + ARCore): WebXR with hit-test, tap to place, drag to turn, lid slider stays live.
+// iPhone / iPad: the current look (colourway, hidden parts, lid) exported to USDZ for AR Quick Look.
+// Anywhere else: a QR code to open the viewer on a phone.
+const arGroup = new THREE.Group(); arGroup.scale.setScalar(0.001);   // model is in mm, AR is in metres
+scene.add(arGroup);
+const reticle = new THREE.Mesh(new THREE.RingGeometry(0.035, 0.042, 40).rotateX(-Math.PI / 2),
+  new THREE.MeshBasicMaterial({ color: 0xf7d116 }));
+reticle.matrixAutoUpdate = false; reticle.visible = false; scene.add(reticle);
+let hitSrc = null, arPlaced = false, arDrag = null, arMoved = false;
+const arUI = $("#arUI");
+
+// put the deck in arGroup with its bottom-centre on the origin (so it sits on the surface)
+function deckToAR() {
+  caseFrame.position.set(0, 0, 0); scene.updateMatrixWorld(true);
+  const b = new THREE.Box3().setFromObject(root), c = b.getCenter(new THREE.Vector3());
+  arGroup.add(caseFrame);
+  caseFrame.position.set(-c.x, -b.min.y, -c.z);
+}
+function deckBack() { scene.add(caseFrame); caseFrame.position.set(0, 0, 0); }
+
+async function startXR() {
+  const session = await navigator.xr.requestSession("immersive-ar",
+    { requiredFeatures: ["hit-test"], optionalFeatures: ["dom-overlay"], domOverlay: { root: arUI } });
+  renderer.xr.setReferenceSpaceType("local");
+  await renderer.xr.setSession(session);
+  hitSrc = await session.requestHitTestSource({ space: await session.requestReferenceSpace("viewer") });
+  deckToAR(); arGroup.visible = false; arPlaced = false; arGroup.rotation.set(0, 0, 0);
+  grid.visible = false; arUI.hidden = false; document.body.classList.add("in-ar");
+  $("#arMsg").textContent = "move your phone slowly to find the desk…";
+  session.addEventListener("select", () => {
+    if (arMoved || !reticle.visible) return;           // a drag to turn isn't a tap to place
+    arGroup.position.setFromMatrixPosition(reticle.matrix);
+    if (!arPlaced) {                                    // first placement: face the viewer
+      const cam = renderer.xr.getCamera().getWorldPosition(new THREE.Vector3());
+      arGroup.rotation.y = Math.atan2(cam.x - arGroup.position.x, cam.z - arGroup.position.z) + Math.PI * 0.12;
+    }
+    arGroup.visible = arPlaced = true;
+    $("#arMsg").textContent = "real size · tap to move · drag to turn";
+  });
+  session.addEventListener("end", () => {
+    hitSrc = null; reticle.visible = false; arUI.hidden = true; document.body.classList.remove("in-ar");
+    deckBack(); grid.visible = true;
+    renderer.setSize(innerWidth, innerHeight); viewOffset();
+  });
+}
+function arFrame(xrFrame) {
+  if (!hitSrc) return;
+  const hits = xrFrame.getHitTestResults(hitSrc);
+  const pose = hits.length && hits[0].getPose(renderer.xr.getReferenceSpace());
+  reticle.visible = !!pose;
+  if (pose) {
+    reticle.matrix.fromArray(pose.transform.matrix);
+    if (!arPlaced) $("#arMsg").textContent = "tap to place the deck";
+  }
+}
+// one finger across the overlay turns the deck; overlay buttons don't count as a placing tap
+arUI.addEventListener("touchstart", (e) => { arDrag = e.touches[0].clientX; arMoved = false; }, { passive: true });
+arUI.addEventListener("touchmove", (e) => {
+  if (arDrag == null || e.target.closest("button, input")) return;
+  const x = e.touches[0].clientX;
+  if (Math.abs(x - arDrag) > 4) arMoved = true;
+  arGroup.rotation.y += (x - arDrag) * 0.012; arDrag = x;
+}, { passive: true });
+arUI.addEventListener("touchend", () => { arDrag = null; setTimeout(() => (arMoved = false), 120); });
+for (const el of arUI.querySelectorAll("button, input, .ar-bar")) el.addEventListener("beforexrselect", (e) => e.preventDefault());
+$("#arExit").onclick = () => renderer.xr.getSession()?.end();
+$("#arLid").oninput = (e) => { setLid(+e.target.value); $("#arLidOut").textContent = e.target.value + "°"; };
+
+async function buildUSDZ() {
+  deckToAR(); arGroup.position.set(0, 0, 0); arGroup.rotation.set(0, 0, 0); arGroup.visible = true;
+  const shown = screenMesh && screenMesh.visible; if (screenMesh) screenMesh.visible = false;   // video can't go in a USDZ
+  try { return await new USDZExporter().parseAsync(arGroup, { quickLookCompatible: true }); }
+  finally { if (screenMesh) screenMesh.visible = shown; deckBack(); }
+}
+async function quickLook() {
+  const msg = $("#arBtn").textContent; $("#arBtn").textContent = "preparing…";
+  try {
+    const data = await buildUSDZ();
+    const a = document.createElement("a");
+    a.rel = "ar"; a.href = URL.createObjectURL(new Blob([data], { type: "model/vnd.usdz+zip" })); a.download = "minideck.usdz";
+    a.appendChild(document.createElement("img")); a.click();
+  } catch (e) { console.error(e); alertAR("Couldn't build the AR model on this device."); }
+  finally { $("#arBtn").textContent = msg; }
+}
+function alertAR(text) {
+  $("#arNote").textContent = text;
+  const q = $("#arQR"); q.innerHTML = "";
+  if (window.qrcode) {
+    const qr = window.qrcode(0, "M"); qr.addData(location.href.split("#")[0]); qr.make();
+    q.innerHTML = qr.createSvgTag({ cellSize: 4, margin: 2, scalable: true });
+  }
+  $("#arModal").hidden = false;
+}
+$("#arClose").onclick = () => ($("#arModal").hidden = true);
+
+let xrOK = false;
+const iosAR = document.createElement("a").relList?.supports?.("ar");
+if (navigator.xr) navigator.xr.isSessionSupported("immersive-ar").then((v) => (xrOK = v)).catch(() => {});
+async function arClick() {
+  if (xrOK) { try { await startXR(); } catch (e) { console.error(e); alertAR("AR couldn't start: " + e.message); } }
+  else if (iosAR) quickLook();
+  else alertAR(mobile()
+    ? "This browser can't do AR. On Android use Chrome with Google Play Services for AR; on iPhone/iPad use Safari."
+    : "AR runs on your phone. Scan this to open the viewer there, then tap “view in AR”.");
+}
+$("#arBtn").onclick = arClick;
+$("#arBtnM").onclick = arClick;
+
 // ------------------------------------------------------------------ loop
-function frame() {
-  requestAnimationFrame(frame);
+function frame(time, xrFrame) {
+  if (xrFrame) { arFrame(xrFrame); renderer.render(scene, camera); return; }
   controls.update();
   const d = camera.position.distanceTo(controls.target);
   camera.near = Math.max(0.5, d * 0.05); camera.far = d * 10 + 800; camera.updateProjectionMatrix();
@@ -410,7 +521,7 @@ const untilLoopEnd = () => new Promise((r) => {
 optic.addEventListener("ended", () => { if (!loaded) { optic.currentTime = 0; optic.play(); } });
 optic.play().catch(() => {});
 load().then(untilLoopEnd).then(() => {
-  document.body.classList.remove("loading"); requestAnimationFrame(frame);
+  document.body.classList.remove("loading"); renderer.setAnimationLoop(frame);
   setTimeout(() => optic.pause(), 800);
 })
   .catch((e) => { console.error(e); $("#loadpct").textContent = "load error"; });

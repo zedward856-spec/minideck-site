@@ -88,3 +88,31 @@ body.loading #side, body.loading #sideBtn { display: none; }
 .ps-list::-webkit-scrollbar-thumb { background: rgba(247,209,22,.3); }
 .ps-list::-webkit-scrollbar-thumb:hover { background: rgba(247,209,22,.6); }
 .ps-list::-webkit-scrollbar-button { display: none; height: 0; }
+
+/* AR */
+#side .arbtn { width: 100%; margin-top: 8px; padding: 10px; color: #000 !important; background: var(--y) !important; border-color: var(--y) !important; font-weight: 700; }
+#arBtnM { display: none; }
+#arUI { position: fixed; inset: 0; z-index: 60; pointer-events: auto; display: flex; flex-direction: column; justify-content: space-between;
+  padding: calc(14px + env(safe-area-inset-top)) 14px calc(18px + env(safe-area-inset-bottom)); color: #fff; font-size: 12px; }
+#arUI[hidden] { display: none; }
+#arUI .ar-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+#arUI #arMsg { background: rgba(0,0,0,.6); padding: 8px 12px; border-left: 2px solid var(--y); letter-spacing: .08em; }
+#arUI button { background: rgba(0,0,0,.7); color: var(--y); border: 1px solid var(--y); padding: 10px 16px; font: 12px var(--mono);
+  letter-spacing: .14em; text-transform: uppercase; }
+#arUI .ar-bar { display: flex; align-items: center; gap: 12px; background: rgba(0,0,0,.6); padding: 10px 14px; text-transform: uppercase; letter-spacing: .14em; }
+#arUI .ar-bar input { flex: 1; accent-color: var(--y); height: 28px; }
+#arUI .ar-bar b { color: var(--y); width: 4ch; text-align: right; }
+body.in-ar #stage { background: none; }
+#arModal { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; background: rgba(0,0,0,.6); backdrop-filter: blur(4px); }
+#arModal[hidden] { display: none; }
+#arModal .box { width: min(340px, calc(100vw - 32px)); padding: 20px; background: #111115; border: 1px solid var(--y); text-align: center; }
+#arModal p#arNote { color: var(--ink); font-size: 13px; line-height: 1.5; }
+#arModal #arQR svg { width: 200px; height: 200px; background: #fff; margin: 6px auto 14px; display: block; }
+#arModal #arQR:empty { display: none; }
+#arModal button { background: none; color: var(--y); border: 1px solid var(--y); padding: 8px 18px; font: 12px var(--mono); letter-spacing: .14em; text-transform: uppercase; cursor: pointer; }
+@media (max-width: 860px) {
+  #arBtnM { display: block; position: fixed; z-index: 8; left: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); padding: 12px 18px;
+    font-size: 12px; font-weight: 700; letter-spacing: .14em; color: #000; background: var(--y); border: 1px solid var(--y); }
+  body.loading #arBtnM { display: none; }
+  #pick { bottom: 130px; }
+}
