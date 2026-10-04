@@ -206,7 +206,7 @@ function rebuildPoints() {
   geo.setAttribute("color", new THREE.Float32BufferAttribute(col, 3));
   points = new THREE.Points(geo, new THREE.PointsMaterial({ size: 1.6, vertexColors: true, transparent: true, opacity: 0.85, depthWrite: false }));
   caseFrame.add(points);
-  $("#thrlabel").textContent = `${thr} °C · ${(pos3.length / 3).toLocaleString()} cells`;
+  $("#thrlabel").textContent = `${(pos3.length / 3).toLocaleString()} mm³ above ${thr} °C`;
 }
 function resize() { const w = box.clientWidth; renderer.setSize(w, w * 0.75); camera.aspect = 4 / 3; camera.updateProjectionMatrix(); }
 addEventListener("resize", resize);
