@@ -274,6 +274,7 @@ async function load() {
   setPalette(palIndex);
   setLid(110);
   viewOffset(); frameDeck(root); resetView();
+  try { await renderer.compileAsync(scene, camera); } catch (e) { }   // shaders compiled while the loader plays
   window.__viewer = { scene, camera, controls, items, root, usdz: () => buildUSDZ().then((d) => d.byteLength) };
 }
 

@@ -36,6 +36,21 @@ const BOM = {
 // cache-buster for the data files (bumped on every deploy along with the ?v= in index.html)
 const GLB_BYTES = +(document.querySelector('meta[name="glb-bytes"]')?.content || 0);   // real size: Pages gzips the GLB
 const ASSET_V = new URL(import.meta.url).searchParams.get("v") || "0";
+// start the data right away (served from the page's preloads), before the renderer is even set up
+const PARTS_P = fetch("assets/parts.json?v=" + ASSET_V).then((r) => r.json());
+let glbLoaded = 0;
+const GLB_P = fetch("assets/minideck.glb?v=" + ASSET_V).then(async (r) => {
+  const rd = r.body.getReader(), chunks = [];
+  for (;;) {
+    const { done, value } = await rd.read(); if (done) break;
+    chunks.push(value); glbLoaded += value.length;
+    const p = Math.min(99, Math.round((glbLoaded / (GLB_BYTES || +r.headers.get("content-length") || Infinity)) * 100));
+    const bar = document.getElementById("loadbar"), pct = document.getElementById("loadpct");
+    if (bar) bar.style.width = p + "%"; if (pct) pct.textContent = p + "%";
+  }
+  const buf = new Uint8Array(glbLoaded); let o = 0; for (const c of chunks) { buf.set(c, o); o += c.length; }
+  return buf.buffer;
+});
 
 // ------------------------------------------------------------------ helpers
 const $ = (s) => document.querySelector(s);
@@ -174,10 +189,8 @@ function pivotize(obj, parent) {
 function rnd(seed) { let s = seed; return () => ((s = Math.sin(s * 9301 + 49297) * 233280) - Math.floor(s)); }
 
 async function loadDeck() {
-  meta = await (await fetch("assets/parts.json?v=" + ASSET_V)).json();
-  const gltf = await new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync("assets/minideck.glb?v=" + ASSET_V, (e) => {
-    { const p = Math.min(99, Math.round((e.loaded / (GLB_BYTES || e.total || Infinity)) * 100)); $("#loadbar").style.width = p + "%"; $("#loadpct").textContent = p + "%"; }
-  });
+  meta = await PARTS_P;
+  const gltf = await new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).parseAsync(await GLB_P, "assets/");
   const root = gltf.scene;
   caseFrame.add(root);
   // centre the deck (case frame point -> origin)
@@ -255,6 +268,9 @@ async function loadDeck() {
   }
   setPalette(0);
   for (const r of Object.keys(palTarget)) if (mats[r]) mats[r].color.set(palTarget[r]);
+  // compile every shader up front, in parallel and off the main thread where the browser can
+  // (KHR_parallel_shader_compile), so the loader keeps animating instead of the first frame freezing ~1 s
+  try { await renderer.compileAsync(scene, camera); } catch (e) { }
 }
 let legendPlane = null, byName = {};
 
@@ -381,8 +397,10 @@ const S = { battery: 0, explode: 1, lid: 0, spin: -1.2, tilt: 0.32, x: heroX(), 
 let t0 = null, last = performance.now(), introDone = false, palTimer = 0;
 const q = new THREE.Quaternion(), qI = new THREE.Quaternion(), v = new THREE.Vector3(), zAxis = new THREE.Vector3(0, 0, 1);
 
+let loading = true;
 function frame(now) {
   requestAnimationFrame(frame);
+  if (loading) { last = now; return; }
   const dt = Math.min(0.05, (now - last) / 1000); last = now;
   const t = now / 1000;
   if (window.__inspectCam) { renderer.render(scene, window.__inspectCam); return; }   // test hook
@@ -496,8 +514,9 @@ addEventListener("resize", () => {
 
 requestAnimationFrame(frame);
 window.__dbg = { deck, camera, parts, scene, renderer };
-const minShow = new Promise((r) => setTimeout(r, 1900));
+const minShow = new Promise((r) => setTimeout(r, 400));   // just long enough to see the loader, never a wait
 loadDeck().then(() => minShow).then(() => {
+  loading = false;
   clearInterval(bootTimer);
   $("#loadbar").style.width = "100%"; $("#loadpct").textContent = "100%";
   t0 = null;                                       // restart the intro clock as the curtain opens
