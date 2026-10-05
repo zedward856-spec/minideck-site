@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { toCreasedNormals } from "three/addons/utils/BufferGeometryUtils.js";
 
@@ -174,7 +175,7 @@ function rnd(seed) { let s = seed; return () => ((s = Math.sin(s * 9301 + 49297)
 
 async function loadDeck() {
   meta = await (await fetch("assets/parts.json?v=" + ASSET_V)).json();
-  const gltf = await new GLTFLoader().loadAsync("assets/minideck.glb?v=" + ASSET_V, (e) => {
+  const gltf = await new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync("assets/minideck.glb?v=" + ASSET_V, (e) => {
     { const p = Math.min(99, Math.round((e.loaded / (GLB_BYTES || e.total || Infinity)) * 100)); $("#loadbar").style.width = p + "%"; $("#loadpct").textContent = p + "%"; }
   });
   const root = gltf.scene;
@@ -197,7 +198,7 @@ async function loadDeck() {
       const gold = c.r > 0.7 && c.g > 0.45 && c.b < 0.45 && c.r - c.b > 0.3;
       o.material = new THREE.MeshStandardMaterial({ color: c, roughness: grey || gold ? 0.32 : 0.55, metalness: grey || gold ? 0.75 : 0.08 });
     } else o.material = mat(m ? m.role : "body");
-    o.geometry = toCreasedNormals(o.geometry, THREE.MathUtils.degToRad(35));
+    if (!meta._baked_normals) o.geometry = toCreasedNormals(o.geometry, THREE.MathUtils.degToRad(35));
     o.castShadow = o.receiveShadow = false;
   });
 

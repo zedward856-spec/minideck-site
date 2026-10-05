@@ -1,6 +1,7 @@
 // Minideck viewer: the deck on its own, every part toggleable (same idea as the Android app).
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { toCreasedNormals } from "three/addons/utils/BufferGeometryUtils.js";
@@ -189,7 +190,7 @@ $("#resetBtn").onclick = () => home && resetView();
 let items = [], selected = null, root = null, screenMesh = null;
 async function load() {
   const meta = await (await fetch(A("parts.json"))).json();
-  const gltf = await new GLTFLoader().loadAsync(A("minideck.glb"), (e) => {
+  const gltf = await new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync(A("minideck.glb"), (e) => {
     $("#loadpct").textContent = loadPct(e) + "%";
   });
   root = gltf.scene; caseFrame.add(root);
@@ -206,7 +207,7 @@ async function load() {
       const gold = c.r > 0.7 && c.g > 0.45 && c.b < 0.45 && c.r - c.b > 0.3;
       o.material = new THREE.MeshStandardMaterial({ color: c, roughness: grey || gold ? 0.32 : 0.55, metalness: grey || gold ? 0.75 : 0.08 });
     } else o.material = mat(m ? m.role : "body");
-    o.geometry = toCreasedNormals(o.geometry, THREE.MathUtils.degToRad(35));
+    if (!meta._baked_normals) o.geometry = toCreasedNormals(o.geometry, THREE.MathUtils.degToRad(35));
     o.userData.base = o.material;
   });
 

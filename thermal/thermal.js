@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 
 const $ = (s) => document.querySelector(s);
 const V = new URL(import.meta.url).searchParams.get("v") || "0";
@@ -173,7 +174,7 @@ const controls = new OrbitControls(camera, renderer.domElement); controls.enable
 scene.add(new THREE.HemisphereLight(0xffffff, 0x222222, 1.2));
 const caseFrame = new THREE.Group(); caseFrame.rotation.x = -Math.PI / 2; caseFrame.position.set(-47, -13, 40); scene.add(caseFrame);
 let points = null;
-new GLTFLoader().load(`../assets/minideck.glb?v=${V}`, (g) => {
+new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).load(`../assets/minideck.glb?v=${V}`, (g) => {
   const lid = g.scene.getObjectByName("lid"); if (lid) lid.visible = false;
   g.scene.updateMatrixWorld(true);
   const tri = [], v3 = new THREE.Vector3();

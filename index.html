@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="glb-bytes" content="6710376">
+<meta name="glb-bytes" content="1696788">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MINIDECK — pocket cyberdeck by zedward</title>
 <meta name="description" content="Minideck: a pocket clamshell cyberdeck. Radxa ZERO 3W, 2.8&quot; IPS, LoRa, GPS, NFC, SDR, 18650 — in 93.7 × 81.5 × 39.5 mm closed.">
@@ -14,7 +14,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261005183838">
+<link rel="preload" href="assets/minideck.glb?v=20261005185754" as="fetch" crossorigin="anonymous">
+<link rel="stylesheet" href="style.css?v=20261005185754">
 <script type="importmap">
 { "imports": {
   "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
@@ -36,14 +37,9 @@
 </head>
 <body>
 
-<!-- ============ loader: the Optic logo draws itself ============ -->
+<!-- ============ loader: the deck-screen Optic animation (same as the 3D viewer), loops until the model is ready ============ -->
 <div id="loader">
-  <svg class="optic draw" viewBox="-8 -8 136 136" aria-hidden="true">
-    <path pathLength="1" d="M7.5,57.5 L35,30 L85,30 L112.5,57.5 L102.5,57.5 L82.5,37.5 L37.5,37.5 L17.5,57.5 Z"/>
-    <path pathLength="1" d="M17.5,62.5 L37.5,82.5 L82.5,82.5 L102.5,62.5 L112.5,62.5 L85,90 L35,90 L7.5,62.5 Z"/>
-    <path pathLength="1" d="M40,57.5 L60,37.5 L80,57.5 L67.5,57.5 L60,50 L52.5,57.5 Z"/>
-    <path pathLength="1" d="M52.5,62.5 L60,70 L67.5,62.5 L80,62.5 L60,82.5 L40,62.5 Z"/>
-  </svg>
+  <video id="opticvid" src="assets/screen.mp4" muted playsinline autoplay loop preload="auto"></video>
   <div class="boot mono">
     <div id="bootlog"></div>
     <div class="bar"><i id="loadbar"></i></div>
@@ -205,6 +201,6 @@
   <div class="mono"><a id="mail2" href="#">email</a> · <a href="#top">back to top ↑</a></div>
 </footer>
 
-<script type="module" src="main.js?v=20261005183838"></script>
+<script type="module" src="main.js?v=20261005185754"></script>
 </body>
 </html>

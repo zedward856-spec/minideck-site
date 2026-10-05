@@ -52,9 +52,10 @@ em { font-style: normal; color: var(--y); }
 /* ---------- loader ---------- */
 #loader {
   position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; align-content: center; gap: 28px;
-  background: var(--bg);
+  background: #000;                                   /* matches the loading animation's black */
 }
 #loader .optic { width: min(34vw, 190px); height: auto; }
+#loader #opticvid { width: min(62vw, 360px); aspect-ratio: 4 / 3; display: block; background: #000; }
 .optic path { fill: var(--y); }
 .optic.draw path {
   fill: transparent; stroke: var(--y); stroke-width: 1.2; stroke-dasharray: 1; stroke-dashoffset: 1;
@@ -74,7 +75,7 @@ em { font-style: normal; color: var(--y); }
 .wipe { position: absolute; left: 0; right: 0; height: 50%; background: var(--bg); transition: transform .9s cubic-bezier(.8,0,.2,1); }
 .wipe.top { top: 0; } .wipe.bot { bottom: 0; }
 #loader.done { background: transparent; pointer-events: none; }
-#loader.done .optic, #loader.done .boot { opacity: 0; transform: scale(1.4); transition: all .5s; filter: blur(6px); }
+#loader.done .optic, #loader.done #opticvid, #loader.done .boot { opacity: 0; transform: scale(1.4); transition: all .5s; filter: blur(6px); }
 #loader.done .wipe.top { transform: translateY(-100%); transition-delay: .25s; }
 #loader.done .wipe.bot { transform: translateY(100%); transition-delay: .25s; }
 
