@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="glb-bytes" content="6710504">
+<meta name="glb-bytes" content="6710376">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MINIDECK — pocket cyberdeck by zedward</title>
 <meta name="description" content="Minideck: a pocket clamshell cyberdeck. Radxa ZERO 3W, 2.8&quot; IPS, LoRa, GPS, NFC, SDR, 18650 — in 93.7 × 81.5 × 39.5 mm closed.">
@@ -14,12 +14,24 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261004213402">
+<link rel="stylesheet" href="style.css?v=20261005183838">
 <script type="importmap">
 { "imports": {
   "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
   "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
 } }
+</script>
+<script>
+// a reload always starts at the top (home): no restored scroll position, no leftover #section
+(function () {
+  var nav = performance.getEntriesByType && performance.getEntriesByType("navigation")[0];
+  if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+  if (nav && nav.type === "reload") {
+    if (location.hash) history.replaceState(null, "", location.pathname + location.search);
+    window.scrollTo(0, 0);
+    addEventListener("load", function () { window.scrollTo(0, 0); });
+  }
+})();
 </script>
 </head>
 <body>
@@ -52,7 +64,7 @@
     <svg class="wm-small" viewBox="0 0 5000 709" aria-label="MINIDECK"><use href="#wm"/></svg>
   </a>
   <nav class="mono">
-    <a href="#top">home</a><a href="#apart">teardown</a><a href="#hinge">hinge</a><a href="#power">power</a><a href="#specs">specs</a><a href="#palettes">colours</a><a href="#parts">parts</a><a href="viewer/">viewer</a><a href="thermal/">thermal</a><a href="#contact" class="hot">contact</a>
+    <a href="#top">home</a><a href="viewer/">viewer</a><a href="wiring/">wiring</a><a href="thermal/">thermal</a><a href="#contact" class="hot">contact</a>
   </nav>
 </header>
 
@@ -193,6 +205,6 @@
   <div class="mono"><a id="mail2" href="#">email</a> · <a href="#top">back to top ↑</a></div>
 </footer>
 
-<script type="module" src="main.js?v=20261004213402"></script>
+<script type="module" src="main.js?v=20261005183838"></script>
 </body>
 </html>

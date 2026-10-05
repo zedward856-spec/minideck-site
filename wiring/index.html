@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Minideck wiring</title>
+<meta name="description" content="Every wire in the Minideck: the power path, the Radxa header pin map and a searchable list of all 47 wires.">
+<meta name="theme-color" content="#0a0a0c">
+<link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=20261005183838">
+<link rel="stylesheet" href="wiring.css?v=20261005183838">
+</head>
+<body>
+<div class="scan"></div>
+<div class="grain"></div>
+<header id="nav">
+  <a href="../" class="brand">
+    <svg class="optic" viewBox="-8 -8 136 136" aria-hidden="true"><use href="#optic-sym"/></svg>
+    <svg class="wm-small" viewBox="0 0 5000 709" aria-label="MINIDECK"><use href="#wm"/></svg>
+  </a>
+  <nav class="mono">
+    <a href="../">home</a><a href="../viewer/">viewer</a><a href="./" class="here">wiring</a><a href="../thermal/">thermal</a><a href="../#contact" class="hot">contact</a>
+  </nav>
+</header>
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="wm" viewBox="36 -705 5000 709"><path d="M549 -629 504 -502 460 -629C425 -725 295 -725 260 -629L40 0H199L343 -412C348 -427 370 -431 377 -412L521 0H680L584 -274L632 -412C637 -427 659 -431 666 -412L810 0H969L749 -629C714 -725 584 -725 549 -629Z M1049 0H1199V-700H1049Z M1769 -315C1769 -286 1748 -287 1736 -302L1467 -650C1393 -745 1279 -693 1279 -595V0H1429V-385C1429 -414 1450 -413 1462 -398L1731 -50C1805 45 1919 -7 1919 -105V-700H1769Z M1999 0H2149V-700H1999Z M2669 -700H2229V-550H2644C2694 -550 2719 -525 2719 -475V-225C2719 -175 2694 -150 2644 -150H2379V-424H2229V0H2669C2803 0 2869 -66 2869 -200V-500C2869 -634 2803 -700 2669 -700Z M3124 -701C3007 -701 2949 -635 2949 -501V-1H3589V-151H3099V-476C3099 -526 3120 -551 3162 -551H3590V-701ZM3224 -276H3529V-426H3224Z M3871 -700C3737 -700 3671 -634 3671 -500V-200C3671 -66 3737 0 3871 0H4311V-150H3896C3846 -150 3821 -175 3821 -225V-475C3821 -525 3846 -550 3896 -550H4161V-470H4311V-700Z M4391 0H4541V-275H4737C4787 -275 4796 -247 4812 -200L4882 0H5032L4952 -225C4934 -276 4920 -318 4901 -350C4920 -382 4934 -424 4952 -475L5032 -700H4882L4812 -500C4796 -453 4787 -425 4737 -425H4541V-700H4391Z"/></symbol>
+  <symbol id="optic-sym" viewBox="-8 -8 136 136">
+    <path d="M7.5,57.5 L35,30 L85,30 L112.5,57.5 L102.5,57.5 L82.5,37.5 L37.5,37.5 L17.5,57.5 Z"/>
+    <path d="M17.5,62.5 L37.5,82.5 L82.5,82.5 L102.5,62.5 L112.5,62.5 L85,90 L35,90 L7.5,62.5 Z"/>
+    <path d="M40,57.5 L60,37.5 L80,57.5 L67.5,57.5 L60,50 L52.5,57.5 Z"/>
+    <path d="M52.5,62.5 L60,70 L67.5,62.5 L80,62.5 L60,82.5 L40,62.5 Z"/>
+  </symbol>
+</svg>
+
+<main class="wiring">
+  <section class="intro">
+    <p class="kicker mono">// wiring</p>
+    <h1>Every wire.</h1>
+    <p>One 18650, one 5 V boost and a Radxa ZERO 3W with no header: every module is soldered straight to its pads, one wire per pad.
+      Hover a pin or a wire to light up where it goes. The same plan is in the build guide and in two Obsidian canvases you can download below.</p>
+  </section>
+
+  <section class="wpanel">
+    <div class="panel-head"><h2>Power path</h2><span class="dim mono">charging never needs the switch on</span></div>
+    <svg id="power" viewBox="0 0 1015 300" role="img" aria-label="Power path diagram">
+      <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs>
+      <g class="edges">
+        <path class="e chg" d="M120 60 H190"/>
+        <path class="e bat" d="M300 60 H360"/>
+        <path class="e bat" d="M245 92 V150 H360"/>
+        <path class="e bat" d="M460 150 H520"/>
+        <path class="e v5" d="M650 150 H700"/>
+        <path class="e v5" d="M780 150 H805 V40 H830"/>
+        <path class="e v5" d="M805 150 H830"/>
+        <path class="e v5" d="M805 150 V205 H830"/>
+        <path class="e v33" d="M930 40 V20 H985 V250 H930"/>
+        <path class="e v5" d="M880 60 V80"/>
+      </g>
+      <g class="nodes mono">
+        <g transform="translate(20,40)"><rect width="100" height="40"/><text x="50" y="25">USB-C PWR</text></g>
+        <g transform="translate(190,28)"><rect width="110" height="64"/><text x="55" y="27">TP4056</text><text class="s" x="55" y="45">charger</text></g>
+        <g transform="translate(360,40)"><rect width="100" height="40"/><text x="50" y="25">18650</text></g>
+        <g transform="translate(360,130)"><rect width="100" height="40"/><text x="50" y="25">switch</text></g>
+        <g transform="translate(520,122)"><rect width="130" height="56"/><text x="65" y="24">Pololu boost</text><text class="s" x="65" y="42">5 V · 2.6 A</text></g>
+        <g transform="translate(700,130)"><rect width="80" height="40"/><text x="40" y="25">5 V</text></g>
+        <g transform="translate(830,20)"><rect width="100" height="40"/><text x="50" y="25">Radxa</text></g>
+        <g transform="translate(830,80)"><rect width="100" height="30"/><text x="50" y="20">GPS</text></g>
+        <g transform="translate(830,135)"><rect width="100" height="30"/><text x="50" y="20">screen</text></g>
+        <g transform="translate(830,190)"><rect width="100" height="30"/><text x="50" y="20">LoRa · SDR</text></g>
+        <g transform="translate(830,235)"><rect width="100" height="30"/><text x="50" y="20">3V3 bus</text></g>
+      </g>
+      <g class="labels mono">
+        <text x="155" y="52">5 V in</text><text x="330" y="52">B+ B−</text><text x="300" y="168">B+ (protected cell)</text>
+        <text x="490" y="142">ON</text><text x="1000" y="140" transform="rotate(90 1000 140)">3.3 V: PN532 · CardKB · DAC</text>
+      </g>
+    </svg>
+    <p class="dim small">GPS takes 5 V from the Radxa's pin 4; PN532, CardKB and the DAC run from the Radxa's 3.3 V (pins 1 and 17) so the I²C bus never sees 5 V.</p>
+  </section>
+
+  <section class="wpanel">
+    <div class="panel-head"><h2>Radxa header</h2><span class="dim mono" id="pinInfo">hover a pin</span></div>
+    <div id="header" class="mono"></div>
+    <p class="dim small">Seen from above as fitted: the board sits upside down, pin 1 at the microSD end (the case's left). Grey pins are unused.</p>
+  </section>
+
+  <section class="wpanel">
+    <div class="panel-head"><h2>All <span id="wcount"></span> wires</h2>
+      <input id="q" class="mono" type="search" placeholder="search: radxa pin 29, LoRa, 5 V …"></div>
+    <div id="chips" class="mono"></div>
+    <div id="table" class="mono"></div>
+  </section>
+
+  <section class="wpanel notes">
+    <div class="panel-head"><h2>Notes</h2>
+      <span class="mono small"><a href="minideck-wiring-all.canvas" download>canvas: every wire</a> · <a href="minideck-wiring-power.canvas" download>canvas: power</a></span></div>
+    <ul id="notes"></ul>
+  </section>
+  <p class="back"><a class="btn ghost" href="../">← back to the deck</a></p>
+</main>
+
+<footer>
+  <div class="mono">© 2026 zedward · designed in build123d · rendered in three.js<br><span class="credits">Component models: Radxa ZERO 3W © Radxa (CC BY 4.0) · E22-900T22S © Ebyte · PN532 V4 © Elechouse · DSGP184B patch © Taoglas · M2 inserts © CNC Kitchen (CC BY 4.0) · other parts modelled by zedward</span></div>
+  <div class="mono"><a id="mail2" href="#">email</a> · <a href="#">back to top ↑</a></div>
+</footer>
+<script src="wiring.js?v=20261005183838"></script>
+</body>
+</html>
